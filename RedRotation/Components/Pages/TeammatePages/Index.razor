@@ -1,0 +1,23 @@
+﻿@page "/teammates"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="teammates/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.Teammate">
+    <PropertyColumn Property="teammate => teammate.Name" />
+    <PropertyColumn Property="teammate => teammate.Description" />
+
+    <TemplateColumn Context="teammate">
+        <a href="@($"teammates/edit?id={teammate.Id}")">Edit</a> |
+        <a href="@($"teammates/details?id={teammate.Id}")">Details</a> |
+        <a href="@($"teammates/delete?id={teammate.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>

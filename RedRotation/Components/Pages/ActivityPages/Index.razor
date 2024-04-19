@@ -1,0 +1,24 @@
+﻿@page "/activities"
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="activities/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="DB.Activity">
+    <PropertyColumn Property="activity => activity.Name" />
+    <PropertyColumn Property="activity => activity.Description" />
+    <PropertyColumn Property="activity => activity.LastRotationDate" />
+
+    <TemplateColumn Context="activity">
+        <a href="@($"activities/edit?id={activity.Id}")">Edit</a> |
+        <a href="@($"activities/details?id={activity.Id}")">Details</a> |
+        <a href="@($"activities/delete?id={activity.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>

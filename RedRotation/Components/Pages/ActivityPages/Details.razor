@@ -1,0 +1,49 @@
+﻿@page "/activities/details"
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>Activity</h4>
+    <hr />
+    @if (activity is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@activity.Name</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@activity.Description</dd>
+            <dt class="col-sm-2">LastRotationDate</dt>
+            <dd class="col-sm-10">@activity.LastRotationDate</dd>
+        </dl>
+        <div>
+            <a href="@($"/activities/edit?id={activity.Id}")">Edit</a> |
+            <a href="@($"/activities")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    Activity? activity;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        activity = await DB.Activity.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (activity is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

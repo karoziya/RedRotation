@@ -1,0 +1,57 @@
+﻿@page "/teammates/delete"
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Teammate</h4>
+    <hr />
+    @if (teammate is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@teammate.Name</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@teammate.Description</dd>
+        </dl>
+        <EditForm method="post" Model="teammate" OnValidSubmit="DeleteTeammate" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(teammate is null)">Delete</button> |
+            <a href="/teammates">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    Teammate? teammate;
+
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        teammate = await DB.Teammate.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (teammate is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    public async Task DeleteTeammate()
+    {
+        DB.Teammate.Remove(teammate!);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/teammates");
+    }
+}

@@ -1,0 +1,53 @@
+﻿@page "/activities/create"
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>Activity</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Activity" OnValidSubmit="AddActivity" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label> 
+                <InputText id="name" @bind-Value="Activity.Name" class="form-control" /> 
+                <ValidationMessage For="() => Activity.Name" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label> 
+                <InputText id="description" @bind-Value="Activity.Description" class="form-control" /> 
+                <ValidationMessage For="() => Activity.Description" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="lastrotationdate" class="form-label">LastRotationDate:</label> 
+                <InputText id="lastrotationdate" @bind-Value="Activity.LastRotationDate" class="form-control" /> 
+                <ValidationMessage For="() => Activity.LastRotationDate" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/activities">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public Activity Activity { get; set; } = new();
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddActivity()
+    {
+        DB.Activity.Add(Activity);
+        await DB.SaveChangesAsync();
+        NavigationManager.NavigateTo("/activities");
+    }
+}

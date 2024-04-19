@@ -1,0 +1,96 @@
+﻿@page "/Activities/edit"
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Activity</h4>
+<hr />
+@if (Activity is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Activity" OnValidSubmit="UpdateActivity" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Activity.Id" value="@Activity.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Activity.Name" class="form-control" />
+                    <ValidationMessage For="() => Activity.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Activity.Description" class="form-control" />
+                    <ValidationMessage For="() => Activity.Description" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="lastrotationdate" class="form-label">LastRotationDate:</label>
+                    <InputText id="lastrotationdate" @bind-Value="Activity.LastRotationDate" class="form-control" />
+                    <ValidationMessage For="() => Activity.LastRotationDate" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/activities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public Activity? Activity { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Activity ??= await DB.Activity.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Activity is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateActivity()
+    {
+        DB.Attach(Activity!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ActivityExists(Activity!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/activities");
+    }
+
+    bool ActivityExists(int id)
+    {
+        return DB.Activity.Any(e => e.Id == id);
+    }
+}

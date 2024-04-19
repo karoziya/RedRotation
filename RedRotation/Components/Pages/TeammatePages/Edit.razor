@@ -1,0 +1,91 @@
+﻿@page "/Teammates/edit"
+@inject RedRotation.Data.RedRotationContext DB
+@using RedRotation.Model
+@inject NavigationManager NavigationManager
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>Teammate</h4>
+<hr />
+@if (Teammate is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Teammate" OnValidSubmit="UpdateTeammate" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <input type="hidden" name="Teammate.Id" value="@Teammate.Id" />
+                <div class="mb-3">
+                    <label for="name" class="form-label">Name:</label>
+                    <InputText id="name" @bind-Value="Teammate.Name" class="form-control" />
+                    <ValidationMessage For="() => Teammate.Name" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="Teammate.Description" class="form-control" />
+                    <ValidationMessage For="() => Teammate.Description" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/teammates">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public Teammate? Teammate { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Teammate ??= await DB.Teammate.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (Teammate is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateTeammate()
+    {
+        DB.Attach(Teammate!).State = EntityState.Modified;
+
+        try
+        {
+            await DB.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!TeammateExists(Teammate!.Id))
+            {
+                NavigationManager.NavigateTo("notfound");
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/teammates");
+    }
+
+    bool TeammateExists(int id)
+    {
+        return DB.Teammate.Any(e => e.Id == id);
+    }
+}
